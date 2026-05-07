@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ForecastAI — Sales Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:       #f7f6f3;
+  --surface:  #ffffff;
+  --ink:      #1c1917;
+  --ink2:     #57534e;
+  --ink3:     #a8a29e;
+  --accent:   #2a6049;
+  --accent-l: #e8f2ed;
+  --gold:     #b45309;
+  --gold-l:   #fef3c7;
+  --border:   #e5e2dd;
+  --border2:  #f0ede8;
+  --red:      #b91c1c;
+  --red-l:    #fef2f2;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── Nav ── */
+nav {
+  position: sticky; top:0; z-index: 200;
+  background: rgba(247,246,243,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2.5rem;
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.nav-brand {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
+}
+.nav-mark {
+  width: 28px; height: 28px;
+  background: var(--ink);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-mark svg { width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.nav-title {
+  font-size: 0.9rem; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+
+.nav-right { display: flex; align-items: center; gap: 0.5rem; }
+.nav-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--accent-l);
+  color: var(--accent);
+  font-size: 0.7rem; font-weight: 600;
+  padding: 4px 10px; border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+.pulse { width:5px; height:5px; border-radius:50%; background:var(--accent); animation: pulser 2.5s ease infinite; }
+@keyframes pulser { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+.nav-api {
+  font-size: 0.78rem; font-weight: 500;
+  color: var(--ink2); text-decoration: none;
+  padding: 5px 10px; border-radius: 8px;
+  transition: background 0.18s;
+}
+.nav-api:hover { background: var(--border2); color: var(--ink); }
+
+/* ── Layout ── */
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 2.5rem; }
+
+/* ── Hero ── */
+.hero {
+  padding: 4.5rem 0 3rem;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 3rem;
+  align-items: end;
+}
+
+.hero-left {}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 1.1rem;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block; width: 20px; height: 1.5px;
+  background: var(--accent);
+}
+
+.hero-h1 {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 2.9rem; font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 1.1rem;
+}
+.hero-h1 em { font-style: italic; color: var(--accent); }
+
+.hero-desc {
+  font-size: 0.92rem; color: var(--ink2);
+  line-height: 1.7; max-width: 420px;
+  font-weight: 400;
+}
+
+.hero-right {
+  padding-bottom: 0.5rem;
+}
+.hero-stat-stack { display: flex; flex-direction: column; gap: 1px; }
+.hero-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1.3rem;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: border-color 0.2s;
+}
+.hero-stat:hover { border-color: #c5bdb5; }
+.hero-stat + .hero-stat { margin-top: 8px; }
+
+.hs-label { font-size: 0.75rem; color: var(--ink3); font-weight: 500; }
+.hs-val { font-family: 'Lora', serif; font-size: 1.35rem; font-weight: 500; color: var(--ink); }
+.hs-sub { font-size: 0.7rem; color: var(--ink3); margin-top: 1px; }
+.hs-badge {
+  font-size: 0.68rem; font-weight: 600; padding: 3px 9px; border-radius: 99px;
+}
+.badge-g { background: var(--accent-l); color: var(--accent); }
+.badge-a { background: var(--gold-l); color: var(--gold); }
+
+/* ── Divider ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 0.5rem 0; }
+
+/* ── Control panel ── */
+.control-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.cp-label {
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--ink3); text-transform: uppercase;
+  letter-spacing: 0.09em; margin-bottom: 1.1rem;
+}
+
+.cp-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+
+.cp-field { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 5px; }
+.cp-field label { font-size: 0.78rem; font-weight: 500; color: var(--ink2); }
+
+select {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem;
+  padding: 0.6rem 2.2rem 0.6rem 0.85rem;
+  cursor: pointer; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23a8a29e' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+select:hover { border-color: #c5bdb5; }
+select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(42,96,73,0.09); background-color: var(--surface); }
+
+.btn-go {
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem; font-weight: 600;
+  padding: 0.62rem 1.6rem;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+.btn-go:hover { background: #2d2926; transform: translateY(-1px); }
+.btn-go:active { transform: translateY(0); }
+
+/* ── Empty state ── */
+.empty-wrap {
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: 20px;
+  padding: 5rem 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.empty-icon { font-size: 2rem; margin-bottom: 1rem; opacity: 0.5; }
+.empty-t { font-size: 0.95rem; font-weight: 600; color: var(--ink2); margin-bottom: 0.35rem; }
+.empty-s { font-size: 0.8rem; color: var(--ink3); }
+
+/* ── Loading ── */
+.loading-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4rem;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-bottom: 2rem;
+}
+.spin {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spinning 0.65s linear infinite;
+}
+@keyframes spinning { to { transform: rotate(360deg); } }
+.loading-t { font-size: 0.85rem; color: var(--ink2); font-weight: 500; }
+
+/* ── Error ── */
+.error-wrap {
+  background: var(--red-l);
+  border: 1px solid #fecaca;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  font-size: 0.85rem; color: var(--red);
+  font-weight: 500; margin-bottom: 2rem;
+}
+
+/* ── Results ── */
+.results-area { margin-bottom: 3rem; }
+
+/* Big chart card */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.25rem;
+}
+.cc-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 1.75rem; gap: 1rem;
+}
+.cc-title-block {}
+.cc-eyebrow { font-size: 0.68rem; font-weight: 600; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 4px; }
+.cc-title { font-family: 'Lora', serif; font-size: 1.35rem; font-weight: 500; color: var(--ink); letter-spacing: -0.02em; }
+.cc-meta { font-size: 0.78rem; color: var(--ink3); margin-top: 3px; }
+
+.model-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-l); color: var(--accent);
+  font-size: 0.72rem; font-weight: 600;
+  padding: 5px 12px; border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.model-chip::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+}
+
+.chart-wrap { height: 250px; position: relative; }
+
+/* Bottom bento */
+.bento {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr 1fr;
+  gap: 1.25rem;
+}
+
+.bento-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+.bento-label {
+  font-size: 0.68rem; font-weight: 600;
+  color: var(--ink3); text-transform: uppercase;
+  letter-spacing: 0.09em; margin-bottom: 1.1rem;
+}
+
+/* Table */
+.ftable { width: 100%; border-collapse: collapse; }
+.ftable th {
+  font-size: 0.67rem; font-weight: 600;
+  color: var(--ink3); text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 0 8px 8px 0;
+  text-align: left; border-bottom: 1px solid var(--border2);
+}
+.ftable td {
+  padding: 7px 8px 7px 0;
+  font-size: 0.82rem; color: var(--ink);
+  border-bottom: 1px solid var(--border2);
+}
+.ftable tr:last-child td { border-bottom: none; }
+.ftable tr:hover td { background: var(--bg); }
+
+.wk { font-size: 0.68rem; font-weight: 700; color: var(--ink3); letter-spacing: 0.04em; }
+.dt { font-size: 0.75rem; color: var(--ink2); }
+.sv { font-weight: 600; color: var(--accent); font-size: 0.83rem; }
+
+/* Model bars */
+.mbar-row {
+  margin-bottom: 12px;
+}
+.mbar-row:last-child { margin-bottom: 0; }
+.mbar-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.mbar-name { font-size: 0.8rem; font-weight: 500; color: var(--ink); }
+.mbar-pct { font-size: 0.75rem; color: var(--ink3); }
+.mbar-track {
+  height: 5px; background: var(--bg);
+  border-radius: 99px; overflow: hidden;
+}
+.mbar-fill {
+  height: 100%; border-radius: 99px;
+  transition: width 1.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.win-label {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 0.62rem; font-weight: 700;
+  color: var(--accent); letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Metric rows */
+.mrow {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border2);
+}
+.mrow:last-child { border-bottom: none; }
+.mrow-key { font-size: 0.8rem; color: var(--ink2); }
+.mrow-val { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+.mrow-val.green { color: var(--accent); }
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1.75rem 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 1rem;
+}
+.footer-l { font-size: 0.75rem; color: var(--ink3); }
+.footer-l strong { color: var(--ink2); font-weight: 600; }
+.footer-r { display: flex; gap: 1rem; }
+.footer-tag {
+  font-size: 0.7rem; font-weight: 500; color: var(--ink3);
+  background: var(--border2); padding: 3px 10px; border-radius: 99px;
+}
+
+/* ── Animations ── */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.rise { animation: riseIn 0.4s ease both; }
+.rise-1 { animation-delay: 0.05s; }
+.rise-2 { animation-delay: 0.12s; }
+.rise-3 { animation-delay: 0.19s; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 0 2rem; }
+  .hero-h1 { font-size: 2.1rem; }
+  .bento { grid-template-columns: 1fr; }
+  nav { padding: 0 1.25rem; }
+  .wrap { padding: 0 1.25rem; }
+  footer { flex-direction: column; gap: 0.75rem; text-align: center; }
+}
+@media (max-width: 560px) {
+  .hero-h1 { font-size: 1.75rem; }
+  .cp-row { flex-direction: column; }
+  .btn-go { width: 100%; text-align: center; }
+  .chart-wrap { height: 200px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-brand">
+    <div class="nav-mark">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+    <span class="nav-title">ForecastAI</span>
+  </a>
+  <div class="nav-right">
+    <a href="http://127.0.0.1:8000/docs" class="nav-api" target="_blank">API docs ↗</a>
+    <div class="nav-pill"><div class="pulse"></div>Live</div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Sales Intelligence</div>
+      <h1 class="hero-h1">Predict what's<br>coming <em>before</em><br>it arrives.</h1>
+      <p class="hero-desc">Eight weeks of weekly sales forecasts across 43 US states — powered by four ML models working together. Pick a state, see the numbers.</p>
+    </div>
+    <div class="hero-right">
+      <div class="hero-stat-stack">
+        <div class="hero-stat">
+          <div>
+            <div class="hs-label">States covered</div>
+            <div class="hs-val">43 US markets</div>
+          </div>
+          <span class="hs-badge badge-g">Beverage category</span>
+        </div>
+        <div class="hero-stat">
+          <div>
+            <div class="hs-label">Best performing model</div>
+            <div class="hs-val">Prophet</div>
+            <div class="hs-sub">Won all 43 states</div>
+          </div>
+          <span class="hs-badge badge-g">17.5% MAPE</span>
+        </div>
+        <div class="hero-stat">
+          <div>
+            <div class="hs-label">Models compared</div>
+            <div class="hs-val">4 algorithms</div>
+            <div class="hs-sub">ARIMA · Prophet · XGBoost · LSTM</div>
+          </div>
+          <span class="hs-badge badge-a">Auto-select</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- Controls -->
+  <div style="padding: 2rem 0 0;">
+    <div class="control-panel">
+      <div class="cp-label">Run a forecast</div>
+      <div class="cp-row">
+        <div class="cp-field">
+          <label for="stateSelect">State</label>
+          <select id="stateSelect">
+            <option value="">Loading states…</option>
+          </select>
+        </div>
+        <div class="cp-field">
+          <label for="modelSelect">Model</label>
+          <select id="modelSelect">
+            <option value="best">Auto — picks the best one</option>
+            <option value="Prophet">Prophet</option>
+            <option value="ARIMA">ARIMA / SARIMA</option>
+            <option value="XGBoost">XGBoost</option>
+            <option value="LSTM">LSTM — deep learning</option>
+          </select>
+        </div>
+        <button class="btn-go" onclick="runForecast()">See the forecast →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div id="emptyState">
+    <div class="empty-wrap">
+      <div class="empty-icon">📈</div>
+      <div class="empty-t">Pick a state above to get started</div>
+      <div class="empty-s">Forecasts load in a second or two</div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingBox" style="display:none">
+    <div class="loading-wrap">
+      <div class="spin"></div>
+      <span class="loading-t">Running the models…</span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="errorBox" style="display:none">
+    <div class="error-wrap" id="errorMsg"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="results" style="display:none" class="results-area">
+
+    <!-- Chart card -->
+    <div class="chart-card rise">
+      <div class="cc-header">
+        <div class="cc-title-block">
+          <div class="cc-eyebrow">8-week outlook</div>
+          <div class="cc-title" id="chartTitle">Sales Forecast</div>
+          <div class="cc-meta" id="chartMeta"></div>
+        </div>
+        <div class="model-chip" id="modelChip">Prophet</div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="forecastChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Bento row -->
+    <div class="bento">
+
+      <!-- Weekly table -->
+      <div class="bento-card rise rise-1">
+        <div class="bento-label">Weekly breakdown</div>
+        <div id="forecastTable"></div>
+      </div>
+
+      <!-- Model bars -->
+      <div class="bento-card rise rise-2">
+        <div class="bento-label">All models, compared</div>
+        <div id="modelBars"></div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="bento-card rise rise-3">
+        <div class="bento-label">Forecast metrics</div>
+        <div id="metricsBox"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-l">Built with <strong>FastAPI · Prophet · XGBoost · LSTM</strong> — Data Science Case Study</div>
+  <div class="footer-r">
+    <span class="footer-tag">Python 3.12</span>
+    <span class="footer-tag">43 US States</span>
+    <span class="footer-tag">2019–2023</span>
+  </div>
+</footer>
+
+<script>
+const API = 'http://127.0.0.1:8000';
+let chart = null;
+
+async function loadStates() {
+  try {
+    const r = await fetch(`${API}/states`);
+    const d = await r.json();
+    const s = document.getElementById('stateSelect');
+    s.innerHTML = '<option value="">Choose a state…</option>' +
+      d.states.map(x => `<option value="${x}">${x}</option>`).join('');
+  } catch {
+    document.getElementById('stateSelect').innerHTML =
+      '<option>API not running — start uvicorn first</option>';
+  }
+}
+
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+function fmt(n)   { return '$' + Math.round(n).toLocaleString(); }
+function fmtM(n)  { return '$' + (n/1e6).toFixed(1) + 'M'; }
+
+async function runForecast() {
+  const state = document.getElementById('stateSelect').value;
+  const model = document.getElementById('modelSelect').value;
+  if (!state) { alert('Pick a state first'); return; }
+
+  hide('emptyState'); hide('results'); hide('errorBox');
+  show('loadingBox');
+
+  try {
+    const url = model === 'best'
+      ? `${API}/predict/${encodeURIComponent(state)}`
+      : `${API}/predict/${encodeURIComponent(state)}/${model}`;
+
+    const [fRes, cRes] = await Promise.all([
+      fetch(url),
+      fetch(`${API}/compare/${encodeURIComponent(state)}`)
+    ]);
+
+    const forecast = await fRes.json();
+    const compare  = await cRes.json();
+    if (!fRes.ok) throw new Error(forecast.detail || 'Something went wrong');
+
+    render(forecast, compare, state);
+  } catch(e) {
+    hide('loadingBox');
+    show('errorBox');
+    document.getElementById('errorMsg').textContent = '⚠ ' + e.message;
+  }
+}
+
+function render(fc, cmp, state) {
+  hide('loadingBox');
+  show('results');
+
+  const vals  = fc.forecast.map(f => f.predicted_sales);
+  const dates = fc.forecast.map(f => f.date.slice(5));
+
+  document.getElementById('chartTitle').textContent = state + ' — 8-Week Forecast';
+  document.getElementById('chartMeta').textContent  = 'Oct – Dec 2023  ·  Beverage sales';
+  document.getElementById('modelChip').textContent  = fc.model;
+
+  /* Chart */
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('forecastChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, 250);
+  grad.addColorStop(0, 'rgba(42,96,73,0.13)');
+  grad.addColorStop(1, 'rgba(42,96,73,0)');
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        data: vals,
+        borderColor: '#2a6049',
+        backgroundColor: grad,
+        borderWidth: 2,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#2a6049',
+        pointBorderWidth: 2,
+        pointRadius: 4.5,
+        pointHoverRadius: 6.5,
+        fill: true,
+        tension: 0.42
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1c1917',
+          padding: 11,
+          titleColor: '#a8a29e',
+          titleFont: { size: 11 },
+          bodyColor: '#f5f6f3',
+          bodyFont: { size: 13, weight: '600' },
+          cornerRadius: 10,
+          displayColors: false,
+          callbacks: {
+            title: t => 'Week ending ' + t[0].label,
+            label: c => fmt(c.raw)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#f0ede8', drawBorder: false },
+          ticks: { color: '#a8a29e', font: { size: 10.5 } }
+        },
+        y: {
+          grid: { color: '#f7f6f3', drawBorder: false },
+          ticks: {
+            color: '#a8a29e', font: { size: 10.5 },
+            callback: v => '$' + (v / 1e6).toFixed(0) + 'M'
+          }
+        }
+      }
+    }
+  });
+
+  /* Table */
+  document.getElementById('forecastTable').innerHTML =
+    `<table class="ftable">
+      <thead><tr><th>Wk</th><th>Date</th><th>Sales</th></tr></thead>
+      <tbody>
+        ${fc.forecast.map(f => `
+          <tr>
+            <td><span class="wk">W${f.week}</span></td>
+            <td><span class="dt">${f.date}</span></td>
+            <td><span class="sv">${fmt(f.predicted_sales)}</span></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  /* Model bars */
+  const colors = { Prophet:'#2a6049', ARIMA:'#b45309', XGBoost:'#6d28d9', LSTM:'#b91c1c' };
+  const best   = cmp.best_model;
+  const rows   = Object.entries(cmp.models).sort((a,b) => a[1].mape - b[1].mape);
+  const maxM   = Math.max(...rows.map(r => r[1].mape));
+
+  document.getElementById('modelBars').innerHTML = rows.map(([name, data]) => `
+    <div class="mbar-row">
+      <div class="mbar-top">
+        <span class="mbar-name">${name}</span>
+        <span class="mbar-pct">${data.mape.toFixed(1)}% MAPE</span>
+      </div>
+      <div class="mbar-track">
+        <div class="mbar-fill"
+          style="width:${(data.mape/maxM*100).toFixed(1)}%;background:${colors[name]||'#a8a29e'}">
+        </div>
+      </div>
+      ${name === best ? '<span class="win-label">✓ Selected</span>' : ''}
+    </div>`).join('');
+
+  /* Metrics */
+  const total = vals.reduce((a,b)=>a+b,0);
+  document.getElementById('metricsBox').innerHTML = `
+    <div class="mrow"><span class="mrow-key">Model used</span><span class="mrow-val green">${fc.model}</span></div>
+    <div class="mrow"><span class="mrow-key">MAPE</span><span class="mrow-val">${fc.mape.toFixed(2)}%</span></div>
+    <div class="mrow"><span class="mrow-key">RMSE</span><span class="mrow-val">${fmtM(fc.rmse)}</span></div>
+    <div class="mrow"><span class="mrow-key">8-week total</span><span class="mrow-val green">${fmtM(total)}</span></div>
+    <div class="mrow"><span class="mrow-key">Avg per week</span><span class="mrow-val">${fmtM(total/8)}</span></div>
+    <div class="mrow"><span class="mrow-key">Peak week</span><span class="mrow-val">${fmtM(Math.max(...vals))}</span></div>`;
+}
+
+loadStates();
+</script>
+</body>
+</html>
