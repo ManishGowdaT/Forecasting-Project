@@ -81,7 +81,8 @@ fig, axes   = plt.subplots(2, 2, figsize=(14, 8))
 fig.suptitle("Prophet — forecast vs actual", fontsize=12)
 
 for ax, st in zip(axes.flat, plot_states):
-    if not results[st]:
+    if not results.get(st):
+        ax.set_visible(False)
         continue
     r    = results[st]
     ser  = weekly_data[st]
