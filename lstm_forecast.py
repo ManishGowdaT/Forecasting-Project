@@ -108,6 +108,8 @@ for i, state in enumerate(states):
 
 # ── summary ───────────────────────────────────────────────
 valid   = {k: v for k, v in results.items() if v}
+if not valid:
+    raise RuntimeError("No successful model evaluations; check the training errors above")
 by_mape = sorted(valid.items(), key=lambda x: x[1]["mape"])
 
 print(f"\n{'state':<22} {'mape':>8} {'rmse':>18}")
