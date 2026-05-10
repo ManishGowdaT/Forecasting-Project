@@ -5,7 +5,7 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from xgboost import XGBRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from forecast_metrics import calculate_metrics
 
 warnings.filterwarnings("ignore")
 
@@ -73,9 +73,7 @@ for i, state in enumerate(states):
         preds  = _forecast_recursive(m, series, val.index, HORIZON)
         actual = series.iloc[-HORIZON:]
 
-        mae  = mean_absolute_error(actual, preds)
-        rmse = float(np.sqrt(mean_squared_error(actual, preds)))
-        mape = float(np.mean(np.abs((actual.values - np.array(preds)) / actual.values)) * 100)
+        mae, rmse, mape = calculate_metrics(actual, preds)
 
         results[state] = {
             "forecast": pd.Series(preds, index=val.index),

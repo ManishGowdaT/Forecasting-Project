@@ -14,7 +14,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from forecast_metrics import calculate_metrics
 
 HORIZON  = 8
 LOOKBACK = 12
@@ -87,9 +87,7 @@ for i, state in enumerate(states):
         )
         fc_series = pd.Series(preds, index=val_actual.index)
 
-        mae  = mean_absolute_error(val_actual, fc_series)
-        rmse = float(np.sqrt(mean_squared_error(val_actual, fc_series)))
-        mape = float(np.mean(np.abs((val_actual.values - preds) / val_actual.values)) * 100)
+        mae, rmse, mape = calculate_metrics(val_actual, fc_series)
 
         results[state] = {
             "forecast": fc_series,
