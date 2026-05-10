@@ -59,6 +59,8 @@ for i, state in enumerate(states):
     series = data["weekly_series"]
 
     try:
+        if len(val) != HORIZON or not val.index.equals(series.iloc[-HORIZON:].index):
+            raise ValueError("Validation features do not match the weekly holdout dates")
         m = XGBRegressor(
             n_estimators=500,
             learning_rate=0.05,
