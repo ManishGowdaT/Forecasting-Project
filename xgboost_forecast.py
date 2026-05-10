@@ -42,7 +42,7 @@ def _forecast_recursive(model, series, val_idx, horizon):
             1 if fd.month in (1, 7, 11, 12) else 0,
         ]])
 
-        pred = max(float(model.predict(row)[0]), 0)
+        pred = max(float(model.predict(pd.DataFrame(row, columns=FEATURES))[0]), 0)
         preds.append(pred)
         hist = pd.concat([hist, pd.Series([pred], index=[fd])])
 

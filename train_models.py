@@ -108,7 +108,7 @@ for i, state in enumerate(states):
                 (fd.month - 1) // 3 + 1, fd.year,
                 1 if fd.month in (1, 7, 11, 12) else 0,
             ]])
-            pred = max(float(m.predict(row)[0]), 0)
+            pred = max(float(m.predict(pd.DataFrame(row, columns=FEATURES))[0]), 0)
             preds.append(pred)
             hist = pd.concat([hist, pd.Series([pred], index=[fd])])
 
