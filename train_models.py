@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import joblib
+from forecast_metrics import calculate_metrics
 
 warnings.filterwarnings("ignore")
 logging.getLogger("prophet").setLevel(logging.ERROR)
@@ -27,11 +28,7 @@ states         = sorted(state_datasets.keys())
 
 
 def calc_metrics(actual, predicted):
-    a, p = np.array(actual), np.array(predicted)
-    mae  = float(np.mean(np.abs(a - p)))
-    rmse = float(np.sqrt(np.mean((a - p) ** 2)))
-    mape = float(np.mean(np.abs((a - p) / a)) * 100)
-    return mae, rmse, mape
+    return calculate_metrics(actual, predicted)
 
 
 # ── prophet ───────────────────────────────────────────────
