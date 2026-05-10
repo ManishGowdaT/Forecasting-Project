@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.stattools import adfuller
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from forecast_metrics import calculate_metrics
 
 warnings.filterwarnings("ignore")
 
@@ -49,9 +49,7 @@ for i, state in enumerate(states):
         preds = fit.forecast(steps=HORIZON)
         preds.index = val.index
 
-        mae  = mean_absolute_error(val, preds)
-        rmse = float(np.sqrt(mean_squared_error(val, preds)))
-        mape = float(np.mean(np.abs((val.values - preds.values) / val.values)) * 100)
+        mae, rmse, mape = calculate_metrics(val, preds)
 
         results[state] = {
             "forecast":  preds,

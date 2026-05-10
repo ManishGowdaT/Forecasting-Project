@@ -6,7 +6,7 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from prophet import Prophet
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from forecast_metrics import calculate_metrics
 
 warnings.filterwarnings("ignore")
 logging.getLogger("prophet").setLevel(logging.ERROR)
@@ -45,9 +45,7 @@ for i, state in enumerate(states):
         forecast = m.predict(future)
         preds    = np.clip(forecast["yhat"].iloc[-HORIZON:].values, 0, None)
 
-        mae  = mean_absolute_error(val.values, preds)
-        rmse = float(np.sqrt(mean_squared_error(val.values, preds)))
-        mape = float(np.mean(np.abs((val.values - preds) / val.values)) * 100)
+        mae, rmse, mape = calculate_metrics(val, preds)
 
         results[state] = {
             "forecast":      pd.Series(preds, index=val.index),
