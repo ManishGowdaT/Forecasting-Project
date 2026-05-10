@@ -100,10 +100,10 @@ for i, state in enumerate(states):
         models[state]  = model
 
         model.save(f"artifacts/lstm_{state.replace(' ', '_')}.keras")
-        print(f"  [{i+1:02d}/43] {state:<20} rmse=${rmse:>14,.0f}  mape={mape:.1f}%")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} rmse=${rmse:>14,.0f}  mape={mape:.1f}%")
 
     except Exception as e:
-        print(f"  [{i+1:02d}/43] {state:<20} failed: {e}")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} failed: {e}")
         results[state] = None
 
 # ── summary ───────────────────────────────────────────────

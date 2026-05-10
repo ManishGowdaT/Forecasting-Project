@@ -64,9 +64,9 @@ for i, state in enumerate(states):
             "actual": val, "mae": mae, "rmse": rmse, "mape": mape,
         }
         prophet_models[state] = m
-        print(f"  [{i+1:02d}/43] {state:<20} mape={mape:.1f}%")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} mape={mape:.1f}%")
     except Exception as e:
-        print(f"  [{i+1:02d}/43] {state:<20} failed: {e}")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} failed: {e}")
         prophet_results[state] = None
 
 joblib.dump(prophet_results, "artifacts/prophet_results.pkl")
@@ -121,9 +121,9 @@ for i, state in enumerate(states):
             "actual": actual, "mae": mae, "rmse": rmse, "mape": mape,
         }
         xgb_models[state] = m
-        print(f"  [{i+1:02d}/43] {state:<20} mape={mape:.1f}%")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} mape={mape:.1f}%")
     except Exception as e:
-        print(f"  [{i+1:02d}/43] {state:<20} failed: {e}")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} failed: {e}")
         xgb_results[state] = None
 
 joblib.dump(xgb_results, "artifacts/xgb_results.pkl")
@@ -198,9 +198,9 @@ for i, state in enumerate(states):
         }
         lstm_scalers[state] = scaler
         model.save(f"artifacts/lstm_{state.replace(' ', '_')}.keras")
-        print(f"  [{i+1:02d}/43] {state:<20} mape={mape:.1f}%")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} mape={mape:.1f}%")
     except Exception as e:
-        print(f"  [{i+1:02d}/43] {state:<20} failed: {e}")
+        print(f"  [{i+1:02d}/{len(states)}] {state:<20} failed: {e}")
         lstm_results[state] = None
 
 joblib.dump(lstm_results, "artifacts/lstm_results.pkl")
