@@ -54,10 +54,10 @@ print(f"{'state':<22} {'arima':>8} {'prophet':>9} {'xgboost':>9} {'lstm':>7}  wi
 print("-" * 68)
 for state in states:
     r       = comp.loc[state]
-    arima   = f"{r['ARIMA']:.1f}%"   if r["ARIMA"]   is not None else "  N/A"
-    prophet = f"{r['Prophet']:.1f}%" if r["Prophet"] is not None else "  N/A"
-    xgb     = f"{r['XGBoost']:.1f}%" if r["XGBoost"] is not None else "  N/A"
-    lstm    = f"{r['LSTM']:.1f}%"    if r["LSTM"]    is not None else "  N/A"
+    arima   = f"{r['ARIMA']:.1f}%"   if pd.notna(r["ARIMA"]) else "  N/A"
+    prophet = f"{r['Prophet']:.1f}%" if pd.notna(r["Prophet"]) else "  N/A"
+    xgb     = f"{r['XGBoost']:.1f}%" if pd.notna(r["XGBoost"]) else "  N/A"
+    lstm    = f"{r['LSTM']:.1f}%"    if pd.notna(r["LSTM"]) else "  N/A"
     print(f"{state:<22} {arima:>8} {prophet:>9} {xgb:>9} {lstm:>7}  → {r['winner']} ({r['mape']:.1f}%)")
 
 # ── win counts ────────────────────────────────────────────
