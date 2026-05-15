@@ -53,7 +53,8 @@ print(al_w.head())
 # ── trend plots ───────────────────────────────────────────
 plot_states = ["California", "Texas", "New York", "Florida"]
 fig, axes = plt.subplots(2, 2, figsize=(14, 8))
-fig.suptitle("Weekly Sales — Beverages (2019–2023)", fontsize=13, fontweight="bold")
+date_span = f"{df['Date'].min():%Y}–{df['Date'].max():%Y}"
+fig.suptitle(f"Weekly Sales — Beverages ({date_span})", fontsize=13, fontweight="bold")
 
 for ax, state in zip(axes.flat, plot_states):
     w = to_weekly(df[df["State"] == state])
