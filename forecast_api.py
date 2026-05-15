@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import matplotlib
@@ -16,16 +17,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 # ── startup — load everything once ───────────────────────
+PROJECT_ROOT = Path(__file__).resolve().parent
+ARTIFACTS = PROJECT_ROOT / "artifacts"
+
 print("loading artifacts...")
 
-weekly_data = joblib.load("artifacts/weekly_data.pkl")
-selection   = joblib.load("artifacts/best_model_selection.pkl")
+weekly_data = joblib.load(ARTIFACTS / "weekly_data.pkl")
+selection   = joblib.load(ARTIFACTS / "best_model_selection.pkl")
 
 model_results = {
-    "ARIMA":   joblib.load("artifacts/arima_results.pkl"),
-    "Prophet": joblib.load("artifacts/prophet_results.pkl"),
-    "XGBoost": joblib.load("artifacts/xgb_results.pkl"),
-    "LSTM":    joblib.load("artifacts/lstm_results.pkl"),
+    "ARIMA":   joblib.load(ARTIFACTS / "arima_results.pkl"),
+    "Prophet": joblib.load(ARTIFACTS / "prophet_results.pkl"),
+    "XGBoost": joblib.load(ARTIFACTS / "xgb_results.pkl"),
+    "LSTM":    joblib.load(ARTIFACTS / "lstm_results.pkl"),
 }
 
 STATES = sorted(weekly_data.keys())
@@ -51,7 +55,7 @@ app.add_middleware(
 
 @app.get("/dashboard", include_in_schema=False)
 def dashboard():
-    return FileResponse("dashboard.html")
+    return FileResponse(PROJECT_ROOT / "dashboard.html")
 
 
 # ── helpers ───────────────────────────────────────────────
