@@ -98,6 +98,19 @@ http://127.0.0.1:8000/docs
 
 ## Evaluation Metrics
 
+The training scripts use a shared metric implementation: MAE and RMSE include
+all validation observations; MAPE excludes weeks with zero actual sales and
+fails explicitly if all actual values are zero. Metric calculations reject
+non-finite values and mismatched lengths. Run the metric regression tests with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Existing serialized models and scores are not recalculated by source edits.
+Regenerate and compare artifacts after training before reporting new accuracy
+figures. The stored predictions describe a historical validation window.
+
 - MAPE (Mean Absolute Percentage Error)
 - RMSE (Root Mean Squared Error)
 - MAE (Mean Absolute Error)
