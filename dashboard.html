@@ -623,7 +623,7 @@ function render(fc, cmp, state) {
   show('results');
 
   const vals  = fc.forecast.map(f => f.predicted_sales);
-  const dates = fc.forecast.map(f => f.date.slice(5));
+  const dates = fc.forecast.map(f => f.date);
 
   document.getElementById('chartTitle').textContent = state + ' — 8-Week Forecast';
   document.getElementById('chartMeta').textContent  = 'Oct – Dec 2023  ·  Beverage sales';
@@ -707,7 +707,7 @@ function render(fc, cmp, state) {
   const colors = { Prophet:'#2a6049', ARIMA:'#b45309', XGBoost:'#6d28d9', LSTM:'#b91c1c' };
   const best   = cmp.best_model;
   const rows   = Object.entries(cmp.models).sort((a,b) => a[1].mape - b[1].mape);
-  const maxM   = Math.max(...rows.map(r => r[1].mape));
+  const maxM   = Math.max(0, ...rows.map(r => r[1].mape)) || 1;
 
   document.getElementById('modelBars').innerHTML = rows.map(([name, data]) => `
     <div class="mbar-row">
