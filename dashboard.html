@@ -569,8 +569,10 @@ async function loadStates() {
     const r = await fetch(`${API}/states`);
     const d = await r.json();
     const s = document.getElementById('stateSelect');
-    s.innerHTML = '<option value="">Choose a state…</option>' +
-      d.states.map(x => `<option value="${x}">${x}</option>`).join('');
+    s.replaceChildren(new Option('Choose a state…', ''));
+    for (const state of d.states) {
+      s.add(new Option(state, state));
+    }
   } catch {
     document.getElementById('stateSelect').innerHTML =
       '<option>API not running — start uvicorn first</option>';
