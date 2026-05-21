@@ -187,7 +187,7 @@ def compare(state: str):
     out = {}
     for name, res in model_results.items():
         r = res.get(matched)
-        if not r:
+        if not result_is_usable(r):
             continue
         out[name] = {
             "mape": round(r["mape"], 2),
@@ -197,6 +197,9 @@ def compare(state: str):
                 for i, (d, v) in enumerate(r["forecast"].items())
             ],
         }
+
+    if not out:
+        raise HTTPException(503, f"No valid comparison results for {matched}")
 
     return {
         "state":      matched,
