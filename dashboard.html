@@ -563,6 +563,7 @@ footer {
 <script>
 const API = 'http://127.0.0.1:8000';
 let chart = null;
+let latestRequest = 0;
 
 async function loadStates() {
   try {
@@ -588,6 +589,7 @@ async function runForecast() {
   const state = document.getElementById('stateSelect').value;
   const model = document.getElementById('modelSelect').value;
   if (!state) { alert('Pick a state first'); return; }
+  const requestId = ++latestRequest;
 
   hide('emptyState'); hide('results'); hide('errorBox');
   show('loadingBox');
@@ -604,10 +606,12 @@ async function runForecast() {
 
     const forecast = await fRes.json();
     const compare  = await cRes.json();
+    if (requestId !== latestRequest) return;
     if (!fRes.ok) throw new Error(forecast.detail || 'Something went wrong');
 
     render(forecast, compare, state);
   } catch(e) {
+    if (requestId !== latestRequest) return;
     hide('loadingBox');
     show('errorBox');
     document.getElementById('errorMsg').textContent = '⚠ ' + e.message;
