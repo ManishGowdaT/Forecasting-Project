@@ -11,6 +11,7 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pandas as pd
 import joblib
+from forecast_metrics import result_is_usable
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -67,6 +68,8 @@ def _match_model(raw: str):
     return next((m for m in model_results if m.lower() == raw.lower()), None)
 
 def _serialize(state: str, model_name: str, res: dict) -> dict:
+    if not result_is_usable(res):
+        raise HTTPException(503, f"Invalid stored evaluation for {state} / {model_name}")
     return {
         "state":    state,
         "model":    model_name,

@@ -24,3 +24,27 @@ class MetricTests(unittest.TestCase):
             with self.subTest(actual=actual, predicted=predicted):
                 with self.assertRaises(ValueError):
                     calculate_metrics(actual, predicted)
+
+
+class _Index(list):
+    def equals(self, other):
+        return self == other
+
+
+class _Series(list):
+    def __init__(self, values, dates):
+        super().__init__(values)
+        self.index = _Index(dates)
+
+
+class StoredResultTests(unittest.TestCase):
+    def test_valid_and_invalid_results(self):
+        from forecast_metrics import result_is_usable
+        result = {"mae": 1, "rmse": 1, "mape": 1,
+                  "actual": _Series([100], ["week1"]),
+                  "forecast": _Series([99], ["week1"])}
+        self.assertTrue(result_is_usable(result))
+        self.assertFalse(result_is_usable(None))
+        self.assertFalse(result_is_usable(dict(result, mape=float("inf"))))
+        self.assertFalse(result_is_usable(dict(result, forecast=_Series([99], ["week2"]))))
+        self.assertFalse(result_is_usable(dict(result, forecast=_Series([float("nan")], ["week1"]))))
