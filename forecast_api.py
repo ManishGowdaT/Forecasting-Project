@@ -100,6 +100,17 @@ def root():
     }
 
 
+@app.get("/health", tags=["health"])
+def health():
+    counts = {name: sum(result_is_usable(results.get(state)) for state in STATES)
+              for name, results in model_results.items()}
+    uncovered = [state for state in STATES if not any(
+        result_is_usable(results.get(state)) for results in model_results.values())]
+    return {"status": "degraded" if uncovered else "ready",
+            "states": len(STATES), "valid_results_per_model": counts,
+            "states_without_valid_results": uncovered}
+
+
 @app.get("/states", tags=["info"])
 def get_states():
     return {"total": len(STATES), "states": STATES}
