@@ -39,7 +39,7 @@ print(f"ready — {len(STATES)} states, 4 models")
 app = FastAPI(
     title="Sales Forecasting API",
     description=(
-        "8-week beverage sales forecasts for 43 US states. "
+        f"Stored eight-week beverage sales validation forecasts for {len(STATES)} US states. "
         "Auto-selects best model per state from ARIMA, Prophet, XGBoost, LSTM."
     ),
     version="1.0.0",
@@ -93,6 +93,7 @@ def root():
         "models":  list(model_results.keys()),
         "docs":    "/docs",
         "ui":      "/dashboard",
+        "forecast_kind": "historical_validation",
     }
 
 
