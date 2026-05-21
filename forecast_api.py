@@ -164,9 +164,9 @@ def best_model(state: str):
 
     info  = selection[matched]
     mapes = {
-        name: round(res["mape"], 2)
+        name: round(res[matched]["mape"], 2)
         for name, res in model_results.items()
-        if res.get(matched)
+        if result_is_usable(res.get(matched))
     }
     return {
         "state":      matched,
