@@ -21,12 +21,12 @@ An end-to-end time-series forecasting case study for weekly beverage sales acros
 ├── artifacts/                      # Saved evaluation results and model files
 ├── tests/
 │   └── test_forecast_metrics.py
+├── data_overview.py                # Dataset inspection and summary chart
 ├── prepare_data.py                 # Source data → weekly series and features
-├── sarima_forecast.py
-├── prophet_forecast.py
-├── xgboost_forecast.py
-├── lstm_forecast.py
+├── sarima_forecast.py              # SARIMA holdout evaluation
+├── train_models.py                 # Prophet, XGBoost, and LSTM evaluation
 ├── model_selection.py              # Selects per-state model from stored results
+├── refresh_selection.py             # Rebuild selection from saved results
 ├── forecast_api.py
 ├── forecast_metrics.py
 ├── dashboard.html
@@ -64,11 +64,10 @@ The dashboard is served by FastAPI so its requests use the same origin. Do not o
 Run commands from the repository root. Training scripts overwrite files under `artifacts/`.
 
 ```bash
+python data_overview.py   # optional inspection
 python prepare_data.py
 python sarima_forecast.py
-python prophet_forecast.py
-python xgboost_forecast.py
-python lstm_forecast.py
+python train_models.py
 python model_selection.py
 ```
 
