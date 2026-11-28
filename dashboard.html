@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ForecastAI — Sales Intelligence</title>
+<title>Weekly Sales Forecast Explorer</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -410,11 +410,11 @@ footer {
     <div class="nav-mark">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
     </div>
-    <span class="nav-title">ForecastAI</span>
+    <span class="nav-title">Sales Forecast Explorer</span>
   </a>
   <div class="nav-right">
-    <a href="http://127.0.0.1:8000/docs" class="nav-api" target="_blank">API docs ↗</a>
-    <div class="nav-pill"><div class="pulse"></div>Live</div>
+    <a href="/docs" class="nav-api" target="_blank">API docs ↗</a>
+    <div class="nav-pill">Historical validation</div>
   </div>
 </nav>
 
@@ -424,25 +424,25 @@ footer {
   <section class="hero">
     <div class="hero-left">
       <div class="hero-eyebrow">Sales Intelligence</div>
-      <h1 class="hero-h1">Predict what's<br>coming <em>before</em><br>it arrives.</h1>
-      <p class="hero-desc">Eight weeks of weekly sales forecasts across 43 US states — powered by four ML models working together. Pick a state, see the numbers.</p>
+      <h1 class="hero-h1">Explore<br>weekly sales<br><em>forecasts.</em></h1>
+      <p class="hero-desc">Compare stored eight-week validation forecasts for beverage sales across the states in the dataset. Choose a state and model to inspect predictions and holdout metrics.</p>
     </div>
     <div class="hero-right">
       <div class="hero-stat-stack">
         <div class="hero-stat">
           <div>
-            <div class="hs-label">States covered</div>
-            <div class="hs-val">43 US markets</div>
+            <div class="hs-label">Dataset coverage</div>
+            <div class="hs-val" id="stateCount">Loading…</div>
           </div>
           <span class="hs-badge badge-g">Beverage category</span>
         </div>
         <div class="hero-stat">
           <div>
-            <div class="hs-label">Best performing model</div>
+            <div class="hs-label">Results available</div>
             <div class="hs-val">Prophet</div>
-            <div class="hs-sub">Won all 43 states</div>
+            <div class="hs-sub">Scores are exploratory; see evaluation notes</div>
           </div>
-          <span class="hs-badge badge-g">17.5% MAPE</span>
+          <span class="hs-badge badge-g">Stored results</span>
         </div>
         <div class="hero-stat">
           <div>
@@ -461,7 +461,7 @@ footer {
   <!-- Controls -->
   <div style="padding: 2rem 0 0;">
     <div class="control-panel">
-      <div class="cp-label">Run a forecast</div>
+      <div class="cp-label">View stored validation results</div>
       <div class="cp-row">
         <div class="cp-field">
           <label for="stateSelect">State</label>
@@ -472,14 +472,14 @@ footer {
         <div class="cp-field">
           <label for="modelSelect">Model</label>
           <select id="modelSelect">
-            <option value="best">Auto — picks the best one</option>
+            <option value="best">Selected model for this state</option>
             <option value="Prophet">Prophet</option>
             <option value="ARIMA">ARIMA / SARIMA</option>
             <option value="XGBoost">XGBoost</option>
             <option value="LSTM">LSTM — deep learning</option>
           </select>
         </div>
-        <button class="btn-go" onclick="runForecast()">See the forecast →</button>
+        <button class="btn-go" onclick="runForecast()">View results →</button>
       </div>
     </div>
   </div>
@@ -489,7 +489,7 @@ footer {
     <div class="empty-wrap">
       <div class="empty-icon">📈</div>
       <div class="empty-t">Pick a state above to get started</div>
-      <div class="empty-s">Forecasts load in a second or two</div>
+      <div class="empty-s">The API returns saved holdout predictions; models are not trained on request.</div>
     </div>
   </div>
 
@@ -497,7 +497,7 @@ footer {
   <div id="loadingBox" style="display:none">
     <div class="loading-wrap">
       <div class="spin"></div>
-      <span class="loading-t">Running the models…</span>
+      <span class="loading-t">Loading stored results…</span>
     </div>
   </div>
 
@@ -513,7 +513,7 @@ footer {
     <div class="chart-card rise">
       <div class="cc-header">
         <div class="cc-title-block">
-          <div class="cc-eyebrow">8-week outlook</div>
+          <div class="cc-eyebrow">Eight-week validation window</div>
           <div class="cc-title" id="chartTitle">Sales Forecast</div>
           <div class="cc-meta" id="chartMeta"></div>
         </div>
@@ -552,7 +552,7 @@ footer {
 
 <!-- Footer -->
 <footer>
-  <div class="footer-l">Built with <strong>FastAPI · Prophet · XGBoost · LSTM</strong> — Data Science Case Study</div>
+  <div class="footer-l">Historical evaluation explorer · Forecasts are precomputed and stored</div>
   <div class="footer-r">
     <span class="footer-tag">Python 3.12</span>
     <span class="footer-tag">43 US States</span>
@@ -561,14 +561,16 @@ footer {
 </footer>
 
 <script>
-const API = 'http://127.0.0.1:8000';
+const API = window.location.origin;
 let chart = null;
 let latestRequest = 0;
 
 async function loadStates() {
   try {
     const r = await fetch(`${API}/states`);
+    if (!r.ok) throw new Error('Unable to load states');
     const d = await r.json();
+    document.getElementById('stateCount').textContent = `${d.total} states`;
     const s = document.getElementById('stateSelect');
     s.replaceChildren(new Option('Choose a state…', ''));
     for (const state of d.states) {
@@ -588,7 +590,7 @@ function fmtM(n)  { return '$' + (n/1e6).toFixed(1) + 'M'; }
 async function runForecast() {
   const state = document.getElementById('stateSelect').value;
   const model = document.getElementById('modelSelect').value;
-  if (!state) { alert('Pick a state first'); return; }
+  if (!state) { document.getElementById('errorMsg').textContent = 'Choose a state to view its stored results.'; show('errorBox'); return; }
   const requestId = ++latestRequest;
 
   hide('emptyState'); hide('results'); hide('errorBox');
@@ -626,7 +628,7 @@ function render(fc, cmp, state) {
   const dates = fc.forecast.map(f => f.date);
 
   document.getElementById('chartTitle').textContent = state + ' — 8-Week Forecast';
-  document.getElementById('chartMeta').textContent  = 'Oct – Dec 2023  ·  Beverage sales';
+  document.getElementById('chartMeta').textContent = `${fc.forecast[0]?.date} to ${fc.forecast.at(-1)?.date} · Beverage sales · Stored holdout`;
   document.getElementById('modelChip').textContent  = fc.model;
 
   /* Chart */

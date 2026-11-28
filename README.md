@@ -1,139 +1,96 @@
-# Sales Forecasting System
+# Weekly Sales Forecasting
 
-End-to-end machine learning based sales forecasting system built using Python, Time-Series Forecasting models, and FastAPI.
+An end-to-end time-series forecasting case study for weekly beverage sales across 43 U.S. states. The repository contains data preparation, four model implementations, a FastAPI service, and a dashboard for exploring **stored historical validation results**.
 
-## Project Overview
+> This is a reproducible portfolio project, not a live forecasting service. The API serves forecasts and evaluation data generated from a historical holdout. Model rankings are exploratory because the current selection step chooses the lowest error on that same holdout.
 
-This project predicts weekly sales forecasts for multiple US states using different forecasting and machine learning models. The system compares model performance automatically and selects the best-performing model for each state.
+## What it does
 
-The final predictions are exposed through a FastAPI REST API.
+- Resamples irregular source observations to weekly state-level series.
+- Builds lag and calendar features for machine-learning models.
+- Compares SARIMA, Prophet, XGBoost, and LSTM approaches over an eight-week holdout.
+- Exposes stored predictions and metrics through FastAPI.
+- Provides a browser dashboard for viewing state and model comparisons.
 
----
+## Repository layout
 
-## Features
-
-- Data cleaning and preprocessing
-- Weekly time-series resampling
-- Feature engineering
-- Time-series forecasting
-- Automatic model comparison
-- REST API integration
-- Forecast visualization
-
----
-
-## Models Used
-
-- SARIMA / ARIMA
-- Prophet
-- XGBoost
-- LSTM
-
----
-
-## Technologies Used
-
-- Python
-- Pandas
-- NumPy
-- Scikit-learn
-- Prophet
-- XGBoost
-- TensorFlow / Keras
-- FastAPI
-- Matplotlib
-- Joblib
-
----
-
-## Project Structure
-
-```bash
-Forecasting-Project/
-│
+```text
+.
 ├── data/
-├── artifacts/
-├── data_overview.py
-├── feature_engineering.py
-├── sarima_forecast.py
-├── prophet_forecast.py
-├── xgboost_forecast.py
-├── lstm_forecast.py
-├── model_selection.py
+│   └── sales_data.xlsx             # Source dataset
+├── artifacts/                      # Saved evaluation results and model files
+├── tests/
+│   └── test_forecast_metrics.py
+├── data_overview.py                # Dataset inspection and summary chart
+├── prepare_data.py                 # Source data → weekly series and features
+├── sarima_forecast.py              # SARIMA holdout evaluation
+├── train_models.py                 # Prophet, XGBoost, and LSTM evaluation
+├── model_selection.py              # Selects per-state model from stored results
+├── refresh_selection.py             # Rebuild selection from saved results
 ├── forecast_api.py
-├── requirements.txt
-└── dashboard.html
+├── forecast_metrics.py
+├── dashboard.html
+└── requirements.txt
 ```
 
----
+## Setup
 
-## Workflow
-
-1. Data preprocessing and cleaning
-2. Weekly resampling
-3. Feature engineering
-4. Model training
-5. Forecast generation
-6. Model evaluation using MAPE and RMSE
-7. Best model selection
-8. API deployment using FastAPI
-
----
-
-## API
-
-Run the API server:
+Use Python 3.10 or newer. TensorFlow and Prophet may require platform-specific installation steps.
 
 ```bash
-python -m uvicorn forecast_api:app --reload
+python -m venv .venv
 ```
 
-Open Swagger API docs:
+Activate the environment, then install dependencies:
 
 ```bash
-http://127.0.0.1:8000/docs
+python -m pip install -r requirements.txt
 ```
 
----
+## Run the existing dashboard and API
 
-## Evaluation Metrics
+The API loads the committed serialized files in `artifacts/` at startup. Start it from the repository root:
 
-The training scripts use a shared metric implementation: MAE and RMSE include
-all validation observations; MAPE excludes weeks with zero actual sales and
-fails explicitly if all actual values are zero. Metric calculations reject
-non-finite values and mismatched lengths. Run the metric regression tests with:
+```bash
+python -m uvicorn forecast_api:app --host 127.0.0.1 --port 8000
+```
+
+Open [http://127.0.0.1:8000/dashboard](http://127.0.0.1:8000/dashboard) for the dashboard and [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) for interactive API documentation.
+
+The dashboard is served by FastAPI so its requests use the same origin. Do not open `dashboard.html` directly as a local file.
+
+## Rebuild the saved results
+
+Run commands from the repository root. Training scripts overwrite files under `artifacts/`.
+
+```bash
+python data_overview.py   # optional inspection
+python prepare_data.py
+python sarima_forecast.py
+python train_models.py
+python model_selection.py
+```
+
+Model training can take several minutes and requires the full dependency set. The committed results let reviewers inspect the API and dashboard without retraining.
+
+## Evaluation
+
+The current scripts use the final eight weekly observations as a holdout and report MAE, RMSE, and MAPE. MAPE omits zero-valued actuals; calculations reject non-finite values and mismatched series lengths.
+
+The per-state “best model” is chosen using error on that holdout. Therefore those selected-model scores are not an unbiased estimate of future performance. A stronger comparison should use rolling-origin backtesting, keep model selection separate from final evaluation, and compare against a seasonal-naive baseline before making performance claims.
+
+Run the metric regression tests with:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-Existing serialized models and scores are not recalculated by source edits.
-Regenerate and compare artifacts after training before reporting new accuracy
-figures. The stored predictions describe a historical validation window.
+## Data and limitations
 
-- MAPE (Mean Absolute Percentage Error)
-- RMSE (Root Mean Squared Error)
-- MAE (Mean Absolute Error)
+The source workbook is included in `data/sales_data.xlsx`. Review its source and license before reuse or redistribution. The current API returns stored historical validation forecasts; it does not retrain models or generate forecasts beyond the stored window at request time.
 
----
+The scripts currently use simplified preprocessing and calendar features. Results should be treated as a case study, not a production demand-planning recommendation. See the code and evaluation caveats above before interpreting model rankings.
 
-## Results
+## License
 
-- Prophet achieved the best performance across most states.
-- Automatic model selection was implemented based on forecasting accuracy.
-
----
-
-## Future Improvements
-
-- Real-time forecasting
-- Cloud deployment
-- Interactive dashboard
-- Hyperparameter tuning
-- Automated retraining pipeline
-
----
-
-## Author
-
-Manish Gowda T
+No license file is currently provided. Add a license before inviting reuse or redistribution.

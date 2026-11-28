@@ -1,11 +1,17 @@
-# Python bytecode and local environments
+# Python-generated files
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments and secrets
 .venv/
 venv/
-.pytest_cache/
-.ipynb_checkpoints/
 .env
-# Generated reports (retain the existing trained model artifacts)
+.env.*
+
+# Generated charts and comparison exports
 artifacts/*.png
 artifacts/model_comparison.csv
