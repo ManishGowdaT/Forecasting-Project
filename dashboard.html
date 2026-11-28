@@ -432,7 +432,7 @@ footer {
         <div class="hero-stat">
           <div>
             <div class="hs-label">Dataset coverage</div>
-            <div class="hs-val">Loading…</div>
+            <div class="hs-val" id="stateCount">Loading…</div>
           </div>
           <span class="hs-badge badge-g">Beverage category</span>
         </div>
@@ -569,9 +569,8 @@ async function loadStates() {
   try {
     const r = await fetch(`${API}/states`);
     if (!r.ok) throw new Error('Unable to load states');
-    const d = await r.clone().json();
-    document.getElementById('stateCount').textContent = `${d.total} states`;
     const d = await r.json();
+    document.getElementById('stateCount').textContent = `${d.total} states`;
     const s = document.getElementById('stateSelect');
     s.replaceChildren(new Option('Choose a state…', ''));
     for (const state of d.states) {
