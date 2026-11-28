@@ -83,4 +83,4 @@ summary["mean"] = summary["mean"].map("${:,.0f}".format)
 summary["max"]  = summary["max"].map("${:,.0f}".format)
 print(summary.head(10).to_string())
 
-print("\ndone. next: python data_features.py")
+print("\ndone. next: python prepare_data.py")
